@@ -6,8 +6,6 @@ const DefaultLayout = () => {
   let navigate = useNavigate();
   useEffect(()=>{
     let loginStatusX = localStorage.getItem('loggedin');
-
-    console.log(loginStatusX);
     
     (loginStatusX != 'true')?navigate('/login',{ replace : true}):'';
   },[])

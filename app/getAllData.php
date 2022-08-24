@@ -53,5 +53,21 @@ elseif(isset($data->login) && !empty($data->login))
     {
         echo json_encode(['status'=>0,'error'=>'Record Not Found']);
     }
-}        
+}       
+elseif(isset($data->filterByTable) && !empty($data->filterByTable))
+{
+    /**
+    * get all fields from table
+    */
+    $query = mysqli_query($db_con,"SELECT COLUMN_NAME
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = '$data->filterByTable'");
+    $columns = [];
+    while($column = mysqli_fetch_assoc($query))
+    {
+        $columns[] = $column['COLUMN_NAME'];
+    }
+    echo json_encode($columns);
+} 
+
         
