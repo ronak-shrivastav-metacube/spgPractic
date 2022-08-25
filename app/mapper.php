@@ -204,8 +204,40 @@ if(isset($_GET['d']) && !empty($_GET['d']))
 
                 // echo $value;
             }
-            $count++;
-            
+            $count++;       
         }
     }
+}
+
+if(isset($_GET['atds']) && !empty($_GET['atds']))
+{
+    $value = '';
+    $days = cal_days_in_month(CAL_GREGORIAN,7,2022);
+    $officeDays = ($days - 8);
+    for($i=1;$i<=$officeDays; $i++)
+    {
+        $sql = "SELECT * FROM employees LIMIT 41,50";
+        $query = mysqli_query($db_con, $sql);
+        $value = '';
+        $count = 1;
+        while($emp = mysqli_fetch_assoc($query))
+        {
+            $totalRows = mysqli_num_rows($query);
+            $date = '2022'.'-'.'07'.'-'.sprintf("%02d",$i);
+            $count>10?$h1=11:$h1 = 10;
+            
+            $m1 = sprintf("%02d",rand(1,59));
+            $i1 = sprintf("%02d",rand(1,59));
+            $t1 = $h1.":".$m1.":".$i1;
+            $Xdate = $date.' '.$t1;
+            if($count<$totalRows)
+            $value .= "($emp[EmpID],'WFH','$Xdate'),";
+            else
+            $value .= "($emp[EmpID],'WFH','$Xdate')";
+            $count++;
+        }
+        $sql_insert = "INSERT INTO attendance(empID,status,created_at) VALUES $value";
+        echo $sql_insert.'<br><br>';
+        mysqli_query($db_con,$sql_insert);
+    }   
 }

@@ -56,6 +56,26 @@ elseif(isset($data->login) && !empty($data->login))
 }       
 elseif(isset($data->filterByTable) && !empty($data->filterByTable))
 {
+    // echo "fetch from API : ".$data->filterByTable.' ';
+    /**
+    * Get All Indivisual Tables (which don't have any forieng Key)
+    */
+    $sql = "SELECT TABLE_NAME, COLUMN_NAME, CONSTRAINT_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = 'ron_test_db'";
+    $query = mysqli_query($db_con,$sql);
+    $tables = [];
+    
+    while($table = mysqli_fetch_assoc($query))
+    {
+        // echo " Table : ".$table['REFERENCED_TABLE_NAME'];
+        if($data->filterByTable == $table['REFERENCED_TABLE_NAME'])
+        $tables[] = $table;
+    }
+
+    $clause = $data->clause;
+    foreach($tables as $value)
+    {
+        print_r($value);
+    }
     /**
     * get all fields from table
     */
@@ -67,7 +87,7 @@ elseif(isset($data->filterByTable) && !empty($data->filterByTable))
     {
         $columns[] = $column['COLUMN_NAME'];
     }
-    echo json_encode($columns);
+    // echo json_encode($columns);
 } 
 
         

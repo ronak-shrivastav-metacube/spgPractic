@@ -24,7 +24,7 @@ if(isset($data->table) && !empty($data->table))
         $listdbtables = array_column($db_con->query('SHOW TABLES')->fetch_all(),0);
 
         /**
-          * Get All Indivisual Tablse (which don't have any forieng Key)
+          * Get All Indivisual Tables (which don't have any forieng Key)
           */
          $sql = "SELECT TABLE_NAME, COLUMN_NAME, CONSTRAINT_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = 'ron_test_db'";
          $query = mysqli_query($db_con,$sql);
