@@ -41,7 +41,7 @@ const Login = () => {
       password : userPwd
     })
     .then((result) => {
-      if(result.data.status!=0)
+      if(result.data.status === 1)
       {
         localStorage.setItem('loggedin',true)
         localStorage.setItem('userData',result.data.userData)

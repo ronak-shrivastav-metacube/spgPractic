@@ -57,7 +57,8 @@ const HCharts = () => {
   function createChartOnSelect(e)
   {
     axios.post('http://localhost:8000/getAllData.php',{
-      filterByTable : e
+      filterByTable : e,
+      clause : 'group'
     })
     .then((res) => {
       console.log(res.data);
