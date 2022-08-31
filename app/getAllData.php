@@ -56,11 +56,11 @@ elseif(isset($data->login) && !empty($data->login))
 }       
 elseif(isset($data->filterByTable) && !empty($data->filterByTable))
 {
-    // echo "fetch from API : ".$data->filterByTable.' ';
     /**
     * Get All Indivisual Tables (which don't have any forieng Key)
+    * KEY_COLUMN_USAGE
     */
-    $sql = "SELECT TABLE_NAME, COLUMN_NAME, CONSTRAINT_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = 'ron_test_db'";
+    $sql = "SELECT TABLE_NAME, COLUMN_NAME, CONSTRAINT_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = '$db_name'";
     $query = mysqli_query($db_con,$sql);
     $tables = [];
     
@@ -70,24 +70,72 @@ elseif(isset($data->filterByTable) && !empty($data->filterByTable))
         if($data->filterByTable == $table['REFERENCED_TABLE_NAME'])
         $tables[] = $table;
     }
-
+    
     $clause = $data->clause;
+ 
+    $coumns = [];
     foreach($tables as $value)
     {
-        print_r($value);
+        /**
+         * Get Constrains with colum name in a specified table 
+         */
+        $sql = "SELECT a.TABLE_NAME,a.CONSTRAINT_NAME,a.COLUMN_NAME,b.CONSTRAINT_TYPE FROM information_schema.`KEY_COLUMN_USAGE` as a LEFT JOIN information_schema.TABLE_CONSTRAINTS as b ON a.CONSTRAINT_NAME = b.CONSTRAINT_NAME WHERE a.TABLE_SCHEMA='$db_name' and a.TABLE_NAME='$value[TABLE_NAME]' AND b.TABLE_SCHEMA='$db_name' and b.TABLE_NAME='$value[TABLE_NAME]' ORDER BY a.CONSTRAINT_NAME";
+        
+        $query = mysqli_query($db_con,$sql);
+        
+        while($row = mysqli_fetch_assoc($query))
+        {
+            $columns[] = [
+                'TABLE_NAME'=>$row['TABLE_NAME'],
+                'CONSTRAINT_NAME'=>$row['CONSTRAINT_NAME'],
+                'COLUMN_NAME'=>$row['COLUMN_NAME'],
+                'CONSTRAINT_TYPE'=>$row['CONSTRAINT_TYPE'],
+            ];
+        }
     }
-    /**
-    * get all fields from table
-    */
-    $query = mysqli_query($db_con,"SELECT COLUMN_NAME
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = '$data->filterByTable'");
-    $columns = [];
-    while($column = mysqli_fetch_assoc($query))
+
+    $dataSet = [];
+    foreach($tables as $value)
     {
-        $columns[] = $column['COLUMN_NAME'];
+        $tabelName = $value['TABLE_NAME'];
+        $columnName = $value['COLUMN_NAME'];
+        
+        $pid = '';
+        
+        foreach($columns as $arr)
+        {
+            if($arr['TABLE_NAME'] == $tabelName && $arr['CONSTRAINT_TYPE'] == 'PRIMARY KEY')
+            {
+                $pid = $arr['COLUMN_NAME'];
+                break;
+            }
+        }
+
+        $queryGetSearcedTable = mysqli_query($db_con,"SELECT * FROM $data->filterByTable");
+        $col = [];
+        while($xData = mysqli_fetch_array($queryGetSearcedTable))
+        {
+            $query = mysqli_query($db_con,"SELECT Count($pid) as countOfColumn FROM `$value[TABLE_NAME]` WHERE $columnName = $xData[0]");
+            $columnCount = mysqli_fetch_assoc($query);
+            $col[] = [
+                "name"=>$xData[1],
+                "value"=>$columnCount['countOfColumn']
+            ];
+        }
+        $dataSet[] = [
+            "tableName"=>$value['TABLE_NAME'],
+            "data" => $col
+        ];
     }
-    // echo json_encode($columns);
+    echo json_encode($dataSet);
+
+    // $query = mysqli_query($db_con,"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ''");
+
+    /**
+     * Create groups of dataset
+     */
+
+
 } 
 
         

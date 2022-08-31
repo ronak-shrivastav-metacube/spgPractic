@@ -241,3 +241,40 @@ if(isset($_GET['atds']) && !empty($_GET['atds']))
         mysqli_query($db_con,$sql_insert);
     }   
 }
+
+if(isset($_GET['tra']) && !empty($_GET['tra']))
+{
+    $value = '';
+    $count =1;
+    for($i=31;$i<=31;$i++)
+    {
+      $date = '2022-07-'.$i;
+      /** First */
+      $depositsValue = rand(100,900);
+      $deposits = number_format($depositsValue,2,'.','');
+
+      $withdrawlsValue = rand(100,7000);
+      $withdrawls = number_format($withdrawlsValue,2,'.','');
+
+      /** Second */
+      $depositsValue2 = rand(100,900);
+      $deposits2 = number_format($depositsValue,2,'.','');
+
+      $withdrawlsValue2 = rand(100,7000);
+      $withdrawls2 = number_format($withdrawlsValue,2,'.','');
+      
+      $blance = number_format(rand(1000,15000),2,'.','');
+      $blance2 = number_format(rand(1000,15000),2,'.','');
+      
+      if($count<8)
+      $value .= "('$date','Interest',$deposits,0.00,$blance,'Active'),('$date','Tax',0.00,$withdrawls2,$blance2,'Active'),";
+      else
+      $value .= "('$date','ATM',$deposits,0.00,$blance,'Active'),('$date','NEFT',0.00,$withdrawls2,$blance2,'Active')";
+      $count++; 
+    }    
+
+    $sql = "INSERT INTO transistion2(date,description,deposits,withdrawls,balance,status) VALUES $value";
+    echo $sql;
+    mysqli_query($db_con,$sql);
+
+}
